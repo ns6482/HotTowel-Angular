@@ -102,20 +102,26 @@
         }
 
         function debouncedThrottle(key, callback, delay, immediate) {
-            // Perform some action (callback) after a delay. 
-            // Track the callback by key, so if the same callback 
+            // Perform some action (callback) after a delay.
+            // Track the callback by key, so if the same callback
             // is issued again, restart the delay.
-
+            
             var defaultDelay = 1000;
             delay = delay || defaultDelay;
+            var later = function() {
+                throttles[key] = null;
+                if (!immediate) {
+                    callback();
+                }
+            };
+            var callNow = immediate && !throttles[key];
             if (throttles[key]) {
                 $timeout.cancel(throttles[key]);
                 throttles[key] = undefined;
             }
-            if (immediate) {
+            throttles[key] = $timeout(later, delay);
+            if (callNow) {
                 callback();
-            } else {
-                throttles[key] = $timeout(callback, delay);
             }
         }
 
